@@ -2,9 +2,10 @@ import os
 import uvicorn
 from google.adk.cli.fast_api import get_fast_api_app
 from services.service import Service
-from routers import vehicle_service_logs, mechanics
+from routers import vehicle_service_logs, mechanics, file_upload
 from repos.repo import Repo
 from constants import DB_NAME
+from routers import vehicle_service_logs, mechanics, file_upload, voice
 
 repo = Repo(DB_NAME)
 service = Service(repo)
@@ -27,9 +28,11 @@ app = get_fast_api_app(
     web=SERVE_WEB_INTERFACE,
 )
 
-# Consistent router prefixes - both use /vehicle_service_logs prefix
+# Consistent router prefixes
 app.include_router(vehicle_service_logs.router, prefix="/vehicle_service_logs", tags=["VehicleServiceLogs"])
 app.include_router(mechanics.router, prefix="/vehicle_service_logs/api/mechanics", tags=["mechanics"])
+app.include_router(file_upload.router, prefix="/vehicle_service_logs/api/files", tags=["files"])
+app.include_router(voice.router, prefix="/vehicle_service_logs/api/voice", tags=["voice"])
 
 if __name__ == "__main__":
     # Use the PORT environment variable provided by Cloud Run, defaulting to 8080

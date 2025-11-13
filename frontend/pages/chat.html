@@ -22,6 +22,10 @@
           </li>
         </ul>
       </nav>
+      <!-- Theme Toggle Button -->
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+        <i class="fa-solid fa-moon"></i>
+      </button>
     </header>
 
     <main class="chat-page">
@@ -34,10 +38,6 @@
       </aside>
       <section class="chat-container" aria-label="Chat">
         <div id="messages" class="messages" role="log" aria-live="polite"></div>
-
-        <!-- <div id="file-drop" class="file-drop">
-          Drop files here or click to attach
-        </div> -->
 
         <form id="chat-form" class="chat-form" autocomplete="off">
           <div id="file-preview" class="file-preview"></div>
@@ -52,6 +52,10 @@
               aria-label="Attach file"
               hidden
             />
+            <!-- Voice Button for Chat -->
+            <button type="button" id="voice-btn" class="voice-btn" aria-label="Voice input">
+              <i class="fa-solid fa-microphone"></i>
+            </button>
             <textarea
               id="message-input"
               placeholder="Type your message..."

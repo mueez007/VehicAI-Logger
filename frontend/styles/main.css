@@ -18,6 +18,26 @@
   --color-info: #17a2b8;
   --shadow-subtle: 0 2px 5px rgba(0, 0, 0, 0.1);
   --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.15);
+  
+  /* Theme variables */
+  --bg-primary: var(--color-surface-light);
+  --bg-secondary: var(--color-white);
+  --text-primary: var(--color-text-dark);
+  --text-secondary: var(--color-primary-dark);
+  --border-color: var(--color-border);
+  --header-bg: var(--color-primary-dark);
+  --header-text: var(--color-text-light);
+}
+
+/* Dark theme variables */
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --border-color: #404040;
+  --header-bg: #2d2d2d;
+  --header-text: #e0e0e0;
 }
 
 * {
@@ -56,30 +76,55 @@ html {
 body {
   font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* Professional font stack */
   line-height: 1.6;
-  color: var(--color-text-dark); /* Default text color for light backgrounds */
-  background-color: var(--color-surface-light); /* Light background for the entire page */
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
   height: 100svh;
   overflow: auto;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Header styles */
 header {
-  background: var(--color-primary-dark); /* Deep blue-gray header */
+  background: var(--header-bg);
   padding: 1rem 2rem;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: var(--color-text-light); /* Light text for header */
+  color: var(--header-text);
   box-shadow: var(--shadow-medium);
+  position: relative;
 }
 
 header h1 {
-  font-family: 'Poppins', sans-serif; /* Poppins font for main heading */
-  color: var(--color-text-light);
-  font-size: 1.8rem; /* Reduced font size */
-  font-weight: 700; /* Bold for impact */
+  font-family: 'Poppins', sans-serif;
+  color: var(--header-text);
+  font-size: 1.8rem;
+  font-weight: 700;
   letter-spacing: 1px;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+  background: transparent;
+  border: 2px solid var(--color-accent);
+  color: var(--color-accent);
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle:hover {
+  background: var(--color-accent);
+  color: var(--color-white);
+  transform: rotate(15deg);
 }
 
 nav ul {
@@ -99,26 +144,26 @@ nav ul li a {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.875rem;
-  color: var(--color-text-light); /* Light links in header */
+  color: var(--header-text);
   font-weight: 500;
 }
 
 nav ul li:hover {
-  background-color: var(--color-primary-light); /* Lighter primary for hover */
+  background-color: var(--color-primary-light);
 }
 
 /* Main content styles */
 main {
-  padding: 1.5rem; /* Slightly increased padding */
-  min-height: calc(100vh - 140px); /* Adjusted for header/footer height */
-  max-width: 1000px; /* Increased max-width for content */
+  padding: 1.5rem;
+  min-height: calc(100vh - 140px);
+  max-width: 1000px;
   margin: auto;
 }
 
 /* Footer styles */
 footer {
-  background-color: var(--color-primary-dark); /* Deep blue-gray footer */
-  color: var(--color-text-light);
+  background-color: var(--header-bg);
+  color: var(--header-text);
   text-align: center;
   padding: 1rem;
   width: 100%;
@@ -134,21 +179,21 @@ footer {
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .logs-header h2 {
-  font-family: 'Poppins', sans-serif; /* Poppins font for section headings */
-  color: var(--color-text-dark); /* Dark heading on light background */
-  font-size: 1.8rem; /* Reduced font size */
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-primary);
+  font-size: 1.8rem;
   font-weight: 700;
   letter-spacing: 0.8px;
 }
 
 .btn {
-  background-color: var(--color-accent); /* Accent color for buttons */
+  background-color: var(--color-accent);
   color: var(--color-white);
-  padding: 0.8rem 1.8rem; /* Larger buttons */
+  padding: 0.8rem 1.8rem;
   border: none;
   border-radius: 0.375rem;
   cursor: pointer;
@@ -159,7 +204,7 @@ footer {
 }
 
 .btn:hover {
-  background-color: #c49a3a; /* Slightly darker accent for hover */
+  background-color: #c49a3a;
   box-shadow: var(--shadow-medium);
 }
 
@@ -168,32 +213,32 @@ footer {
 }
 
 .btn-danger:hover {
-  background-color: #c82333; /* Darker red for hover */
+  background-color: #c82333;
 }
 
 .btn-secondary-outline {
   background-color: transparent;
-  color: var(--color-primary-dark);
-  border: 1px solid var(--color-primary-dark);
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
   box-shadow: none;
 }
 
 .btn-secondary-outline:hover {
-  background-color: var(--color-primary-dark);
-  color: var(--color-white);
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
   box-shadow: var(--shadow-subtle);
 }
 
 .log-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Slightly wider cards */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
 }
 
 .log-card {
-  background-color: var(--color-white); /* White background for cards */
-  border: 1px solid var(--color-border);
-  padding: 1.8rem; /* Increased padding */
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: 1.8rem;
   border-radius: 0.75rem;
   box-shadow: var(--shadow-subtle);
   display: flex;
@@ -209,26 +254,26 @@ footer {
 
 .log-info {
   flex-grow: 1;
-  margin-bottom: 1.2rem; /* Increased margin */
+  margin-bottom: 1.2rem;
 }
 
 .log-info h3 {
-  font-family: 'Poppins', sans-serif; /* Poppins font for log card titles */
-  color: var(--color-primary-dark); /* Dark heading for log titles */
-  font-size: 1.3rem; /* Reduced font size */
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-primary);
+  font-size: 1.3rem;
   margin-bottom: 0.8rem;
 }
 
 .log-info p {
   margin-bottom: 0.5rem;
-  color: var(--color-text-dark); /* Dark text for log info paragraphs */
+  color: var(--text-primary);
   font-size: 0.95rem;
 }
 
 .log-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem; /* Increased gap */
+  gap: 0.75rem;
   align-items: center;
   margin-top: auto;
 }
@@ -237,16 +282,16 @@ footer {
   border: none;
   background: none;
   cursor: pointer;
-  color: var(--color-muted-dark); /* Muted dark for icons */
-  font-size: 1.2rem; /* Slightly larger icons */
+  color: var(--text-secondary);
+  font-size: 1.2rem;
   transition: color 0.2s ease;
   padding: 0.5rem;
   border-radius: 50%;
 }
 
 .log-actions button:hover {
-  color: var(--color-accent); /* Accent color for icon hover */
-  background-color: var(--color-surface-light);
+  color: var(--color-accent);
+  background-color: var(--bg-primary);
 }
 
 .log-actions .btn-delete {
@@ -254,8 +299,8 @@ footer {
 }
 
 .log-actions .btn-delete:hover {
-  background-color: var(--color-surface-light);
-  color: #c82333; /* Darker red for delete hover */
+  background-color: var(--bg-primary);
+  color: #c82333;
 }
 
 /* Form Modal */
@@ -266,18 +311,18 @@ footer {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7); /* Darker overlay */
+  background: rgba(0, 0, 0, 0.7);
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
 
 .modal-content {
-  background: var(--color-white); /* White background for modal content */
-  padding: 2rem; /* Increased padding */
+  background: var(--bg-secondary);
+  padding: 2rem;
   border-radius: 0.75rem;
   width: 90%;
-  max-width: 500px; /* Increased max-width */
+  max-width: 500px;
   box-shadow: var(--shadow-medium);
   text-align: center;
   max-height: 90vh;
@@ -285,28 +330,28 @@ footer {
 }
 
 .modal-content h3 {
-  font-family: 'Poppins', sans-serif; /* Poppins font for modal heading */
-  margin-bottom: 1.8rem; /* Increased margin */
-  color: var(--color-primary-dark); /* Dark heading */
-  font-size: 1.8rem; /* Reduced font size */
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 1.8rem;
+  color: var(--text-primary);
+  font-size: 1.8rem;
 }
 
 .modal-content p {
   margin-bottom: 1.8rem;
   font-size: 1.1rem;
-  color: var(--color-text-dark);
+  color: var(--text-primary);
 }
 
 .form-group {
-  margin-bottom: 1.2rem; /* Increased margin */
+  margin-bottom: 1.2rem;
   text-align: left;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.7rem; /* Increased margin */
-  font-weight: 600; /* Bolder labels */
-  color: var(--color-text-dark); /* Dark labels */
+  margin-bottom: 0.7rem;
+  font-weight: 600;
+  color: var(--text-primary);
   font-size: 0.95rem;
 }
 
@@ -316,12 +361,12 @@ footer {
 .form-group textarea,
 .form-group select {
   width: 100%;
-  padding: 0.8rem 1rem; /* Increased padding */
-  border: 1px solid var(--color-border);
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border-color);
   border-radius: 0.375rem;
   font-size: 1rem;
-  color: var(--color-text-dark); /* Dark text for inputs */
-  background-color: var(--color-white); /* White background for inputs */
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -331,16 +376,97 @@ footer {
 .form-group textarea:focus,
 .form-group select:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 0.2rem rgba(218, 165, 32, 0.25); /* Accent shadow on focus */
+  box-shadow: 0 0 0 0.2rem rgba(218, 165, 32, 0.25);
   outline: none;
 }
 
 .form-group textarea {
   resize: vertical;
-  min-height: 100px; /* Increased min-height */
+  min-height: 100px;
+}
+
+/* Voice Input Styles */
+.input-with-voice {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+.input-with-voice input,
+.input-with-voice textarea {
+  padding-right: 3rem !important;
+  flex: 1;
+}
+
+.voice-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.voice-btn:hover {
+  background: var(--color-accent);
+  color: var(--color-white);
+}
+
+.voice-btn.listening {
+  background: var(--color-danger);
+  color: var(--color-white);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: translateY(-50%) scale(1); }
+  50% { transform: translateY(-50%) scale(1.1); }
+  100% { transform: translateY(-50%) scale(1); }
 }
 
 .modal-content .btn {
   margin: 1rem 0.75rem 0;
   min-width: 120px;
+}
+
+/* Notification styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 4px;
+  color: white;
+  font-weight: 500;
+  z-index: 10000;
+  animation: slideIn 0.3s ease-out;
+  max-width: 300px;
+}
+
+.notification.success {
+  background-color: #4CAF50;
+}
+
+.notification.error {
+  background-color: #f44336;
+}
+
+.notification.info {
+  background-color: #2196F3;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
 }

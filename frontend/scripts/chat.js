@@ -1,8 +1,162 @@
 import ApiService from "../services/apiService.js";
 const AgentName = "agent";
 let activeSessionId = "";
+let recognition = null;
+let currentFile = null;
+
+// Theme functionality
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  updateThemeIcon(savedTheme);
+  
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    const icon = themeToggle.querySelector('i');
+    if (theme === 'dark') {
+      icon.className = 'fa-solid fa-sun';
+    } else {
+      icon.className = 'fa-solid fa-moon';
+    }
+  }
+}
+
+// Voice recognition functionality
+function initVoiceRecognition() {
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      const messageInput = document.getElementById('message-input');
+      if (messageInput) {
+        messageInput.value = transcript;
+      }
+      const voiceBtn = document.getElementById('voice-btn');
+      if (voiceBtn) {
+        voiceBtn.classList.remove('listening');
+      }
+      showNotification('Voice input received', 'success');
+    };
+
+    recognition.onerror = function(event) {
+      console.error('Speech recognition error:', event.error);
+      const voiceBtn = document.getElementById('voice-btn');
+      if (voiceBtn) {
+        voiceBtn.classList.remove('listening');
+      }
+      showNotification('Voice recognition failed. Please try again.', 'error');
+    };
+
+    recognition.onend = function() {
+      const voiceBtn = document.getElementById('voice-btn');
+      if (voiceBtn) {
+        voiceBtn.classList.remove('listening');
+      }
+    };
+  } else {
+    console.warn('Speech recognition not supported in this browser');
+    // Disable voice button
+    const voiceBtn = document.getElementById('voice-btn');
+    if (voiceBtn) {
+      voiceBtn.style.display = 'none';
+    }
+  }
+}
+
+function setupVoiceButton() {
+  const voiceBtn = document.getElementById('voice-btn');
+  if (voiceBtn && recognition) {
+    voiceBtn.addEventListener('click', function() {
+      this.classList.add('listening');
+      recognition.start();
+      showNotification('Listening... Speak now', 'info');
+    });
+  }
+}
+
+// File processing functionality
+async function processAndSendFile(file) {
+    try {
+        showNotification('Processing file...', 'info');
+        
+        const result = await ApiService.uploadFile(file);
+        
+        if (result.success) {
+            // Send the processed text content to the agent
+            const message = `I've uploaded a file: ${result.filename}\n\n${result.content}\n\nPlease analyze this service data and help me add it to the system.`;
+            await sendMessage(message);
+            showNotification('File processed successfully!', 'success');
+        } else {
+            showNotification('Failed to process file', 'error');
+        }
+    } catch (error) {
+        console.error('File processing error:', error);
+        showNotification('Error processing file: ' + error.message, 'error');
+    }
+}
+
+// Notification function
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 4px;
+    color: white;
+    font-weight: 500;
+    z-index: 10000;
+    animation: slideIn 0.3s ease-out;
+    max-width: 300px;
+  `;
+  
+  if (type === 'success') {
+    notification.style.backgroundColor = '#4CAF50';
+  } else if (type === 'error') {
+    notification.style.backgroundColor = '#f44336';
+  } else {
+    notification.style.backgroundColor = '#2196F3';
+  }
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease-in';
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 300);
+  }, 3000);
+}
 
 document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  initVoiceRecognition();
   initChat();
 });
 
@@ -10,6 +164,7 @@ function initChat() {
   const newSessionButton = document.getElementById("new-session");
   newSessionButton.addEventListener("click", createSession);
   listSessions();
+  setupVoiceButton();
 }
 
 // DOM elements
@@ -175,10 +330,13 @@ function createMediaElement({ data, mimeType, displayName }) {
 function setSending(isSending) {
   sendBtn.disabled = isSending;
   input.disabled = isSending;
+  const voiceBtn = document.getElementById('voice-btn');
+  if (voiceBtn) {
+    voiceBtn.disabled = isSending;
+  }
 }
 
 // File handling
-let currentFile = null;
 const filePreview = document.createElement("div");
 filePreview.className = "file-preview";
 form.insertBefore(filePreview, form.firstChild);
@@ -276,17 +434,25 @@ async function sendMessage(text, attachedFile = null) {
     });
   } catch (err) {
     console.error("Chat error:", err);
+    showNotification('Failed to send message', 'error');
   } finally {
     setSending(false);
   }
 }
 
 // File input handler
-fileInput.addEventListener("change", (e) => {
+fileInput.addEventListener("change", async (e) => {
   const file = e.target.files[0];
   if (file) {
     currentFile = file;
     showFilePreview(file);
+    
+    // Auto-process and send Excel/CSV files
+    if (file.type.includes('excel') || file.type.includes('spreadsheet') || file.type.includes('csv') || 
+        file.name.endsWith('.xlsx') || file.name.endsWith('.xls') || file.name.endsWith('.csv')) {
+      await processAndSendFile(file);
+      clearFilePreview();
+    }
   }
 });
 
@@ -297,3 +463,20 @@ form.addEventListener("submit", async (e) => {
   input.value = "";
   await sendMessage(text, currentFile);
 });
+
+// Add CSS for animations if not already present
+if (!document.querySelector('style[data-chat-animations]')) {
+  const style = document.createElement('style');
+  style.setAttribute('data-chat-animations', 'true');
+  style.textContent = `
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+}

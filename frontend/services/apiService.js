@@ -223,12 +223,38 @@ class ApiService {
     return this.post('/vehicle_service_logs/api/mechanics/', mechanicData);
   }
 
+  static async updateMechanic(mechanicId, mechanicData) {
+    return this.put(`/vehicle_service_logs/api/mechanics/${mechanicId}`, mechanicData);
+  }
+
+  static async deleteMechanic(mechanicId) {
+    return this.delete(`/vehicle_service_logs/api/mechanics/${mechanicId}`);
+  }
+
   static async getMechanicStats() {
     return this.get('/vehicle_service_logs/api/mechanics/stats/most-services');
   }
 
   static async getMechanicServiceCosts() {
     return this.get('/vehicle_service_logs/api/mechanics/stats/service-costs');
+  }
+
+  // File upload methods
+  static async uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await fetch(buildURL('/vehicle_service_logs/api/files/process-file'), {
+        method: 'POST',
+        body: formData,
+        // Don't set Content-Type header - let browser set it with boundary
+    });
+    
+    return handleResponse(response);
+  }
+
+  static async extractServiceDataFromFile(fileData) {
+    return this.post('/vehicle_service_logs/api/files/extract-service-data', fileData);
   }
 }
 

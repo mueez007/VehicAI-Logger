@@ -9,11 +9,111 @@ const modalTitle = document.getElementById("modalTitle");
 const deleteConfirmModal = document.getElementById("deleteConfirmModal");
 const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
 const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+const themeToggle = document.getElementById("themeToggle");
 
 let logToDeleteId = null;
 let editLogId = "";
+let recognition = null;
+
+// Theme functionality
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  updateThemeIcon(savedTheme);
+  
+  themeToggle.addEventListener('click', toggleTheme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+  const icon = themeToggle.querySelector('i');
+  if (theme === 'dark') {
+    icon.className = 'fa-solid fa-sun';
+  } else {
+    icon.className = 'fa-solid fa-moon';
+  }
+}
+
+// Voice recognition functionality
+function initVoiceRecognition() {
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      const activeVoiceBtn = document.querySelector('.voice-btn.listening');
+      if (activeVoiceBtn) {
+        const targetId = activeVoiceBtn.dataset.target;
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          if (targetElement.tagName === 'TEXTAREA') {
+            targetElement.value += transcript + ' ';
+          } else {
+            targetElement.value = transcript;
+          }
+        }
+        activeVoiceBtn.classList.remove('listening');
+      }
+    };
+
+    recognition.onerror = function(event) {
+      console.error('Speech recognition error:', event.error);
+      const activeVoiceBtn = document.querySelector('.voice-btn.listening');
+      if (activeVoiceBtn) {
+        activeVoiceBtn.classList.remove('listening');
+        showNotification('Voice recognition failed. Please try again.', 'error');
+      }
+    };
+
+    recognition.onend = function() {
+      const activeVoiceBtn = document.querySelector('.voice-btn.listening');
+      if (activeVoiceBtn) {
+        activeVoiceBtn.classList.remove('listening');
+      }
+    };
+  } else {
+    console.warn('Speech recognition not supported in this browser');
+    // Disable voice buttons
+    document.querySelectorAll('.voice-btn').forEach(btn => {
+      btn.style.display = 'none';
+    });
+  }
+}
+
+function setupVoiceButtons() {
+  document.querySelectorAll('.voice-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      if (!recognition) return;
+      
+      const targetId = this.dataset.target;
+      const targetElement = document.getElementById(targetId);
+      
+      if (targetElement) {
+        this.classList.add('listening');
+        recognition.start();
+        
+        // Show listening notification
+        showNotification('Listening... Speak now', 'info');
+      }
+    });
+  });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  initVoiceRecognition();
   loadLogs();
 });
 
@@ -145,6 +245,11 @@ function openLogModal(log = null) {
   // CHALLENGE 5: Load mechanics when opening modal
   console.log('🎯 Opening modal, loading mechanics...');
   loadMechanics();
+  
+  // Setup voice buttons for this modal
+  setTimeout(() => {
+    setupVoiceButtons();
+  }, 100);
   
   if (log) {
     modalTitle.textContent = "Edit Service Log";
@@ -301,28 +406,6 @@ function showNotification(message, type = 'info') {
   notification.className = `notification ${type}`;
   notification.textContent = message;
   
-  // Add styles
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    border-radius: 4px;
-    color: white;
-    font-weight: 500;
-    z-index: 10000;
-    animation: slideIn 0.3s ease-out;
-    max-width: 300px;
-  `;
-  
-  if (type === 'success') {
-    notification.style.backgroundColor = '#4CAF50';
-  } else if (type === 'error') {
-    notification.style.backgroundColor = '#f44336';
-  } else {
-    notification.style.backgroundColor = '#2196F3';
-  }
-  
   document.body.appendChild(notification);
   
   // Remove after 3 seconds
@@ -335,20 +418,6 @@ function showNotification(message, type = 'info') {
     }, 300);
   }, 3000);
 }
-
-// Add CSS for animations
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  @keyframes slideOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
-  }
-`;
-document.head.appendChild(style);
 
 // Close modals when clicking outside
 window.onclick = function (event) {

@@ -21,6 +21,10 @@
           <li><a href="./pages/chat.html">Chat with Agent</a></li>
         </ul>
       </nav>
+      <!-- Theme Toggle Button -->
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+        <i class="fa-solid fa-moon"></i>
+      </button>
     </header>
 
     <main>
@@ -50,11 +54,21 @@
         <form id="logForm">
           <div class="form-group">
             <label for="owner_name">Owner Name *</label>
-            <input type="text" id="owner_name" name="owner_name" required />
+            <div class="input-with-voice">
+              <input type="text" id="owner_name" name="owner_name" required />
+              <button type="button" class="voice-btn" data-target="owner_name" aria-label="Voice input">
+                <i class="fa-solid fa-microphone"></i>
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label for="vehicle_model">Vehicle Model *</label>
-            <input type="text" id="vehicle_model" name="vehicle_model" placeholder="e.g., Hyundai Creta, Maruti Swift" required />
+            <div class="input-with-voice">
+              <input type="text" id="vehicle_model" name="vehicle_model" placeholder="e.g., Hyundai Creta, Maruti Swift" required />
+              <button type="button" class="voice-btn" data-target="vehicle_model" aria-label="Voice input">
+                <i class="fa-solid fa-microphone"></i>
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label for="vehicle_id">Vehicle ID</label>
@@ -91,7 +105,12 @@
           </div>
           <div class="form-group">
             <label for="description">Description</label>
-            <textarea id="description" name="description" placeholder="Details about the service performed..."></textarea>
+            <div class="input-with-voice">
+              <textarea id="description" name="description" placeholder="Details about the service performed..."></textarea>
+              <button type="button" class="voice-btn" data-target="description" aria-label="Voice input">
+                <i class="fa-solid fa-microphone"></i>
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label for="mileage">Mileage (km) *</label>
